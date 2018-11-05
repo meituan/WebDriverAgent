@@ -22,6 +22,7 @@
 
 #import "XCUIDevice.h"
 #import "XCUIScreen.h"
+#import "FBConfiguration.h"
 
 static const NSTimeInterval FBHomeButtonCoolOffTime = 1.;
 static const NSTimeInterval FBScreenLockTimeout = 5.;
@@ -107,7 +108,7 @@ static bool fb_isLocked;
 {
   FBApplication *activeApplication = FBApplication.fb_activeApplication;
   UIInterfaceOrientation orientation = activeApplication.interfaceOrientation;
-  CGSize screenSize = FBAdjustDimensionsForApplication(activeApplication.frame.size, orientation);
+  CGSize screenSize = [FBConfiguration screenSize];
   CGRect screenRect = CGRectMake(0, 0, screenSize.width, screenSize.height);
   // https://developer.apple.com/documentation/xctest/xctimagequality?language=objc
   // Select lower quality, since XCTest crashes randomly if the maximum quality (zero value) is selected
