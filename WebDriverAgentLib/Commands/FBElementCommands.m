@@ -38,6 +38,9 @@
 #import "XCUIElement.h"
 #import "XCUIElementQuery.h"
 #import "FBXCodeCompatibility.h"
+#import "XCEventGenerator.h"
+
+const CGFloat FBDragVelocity = 230.f;
 
 @interface FBElementCommands ()
 @end
@@ -316,13 +319,31 @@
 
 + (id<FBResponsePayload>)handleDragCoordinate:(FBRouteRequest *)request
 {
-  FBSession *session = request.session;
   CGPoint startPoint = CGPointMake((CGFloat)[request.arguments[@"fromX"] doubleValue], (CGFloat)[request.arguments[@"fromY"] doubleValue]);
   CGPoint endPoint = CGPointMake((CGFloat)[request.arguments[@"toX"] doubleValue], (CGFloat)[request.arguments[@"toY"] doubleValue]);
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
-  XCUICoordinate *endCoordinate = [self.class gestureCoordinateWithCoordinate:endPoint application:session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
-  XCUICoordinate *startCoordinate = [self.class gestureCoordinateWithCoordinate:startPoint application:session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
-  [startCoordinate pressForDuration:duration thenDragToCoordinate:endCoordinate];
+  __block NSError * error = NULL;
+  __block BOOL didSucceed;
+  [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
+    /**
+     *  orientation:设置固定方向，避免loadMore
+     *  velocity:设置固定速率，经验所得
+     **/
+    [[XCEventGenerator sharedGenerator] pressAtPoint:startPoint forDuration:duration liftAtPoint:endPoint velocity:FBDragVelocity orientation:0 name:@"dragCoordinate" handler:^(XCSynthesizedEventRecord *record, NSError *commandError) {
+      if (commandError) {
+        [FBLogger logFmt:@"Failed to perform DragCoordinate: %@", commandError];
+      }
+      if (error) {
+        error = commandError;
+      }
+      didSucceed = (commandError == nil);
+      completion();
+    }];
+  }];
+  if (error) {
+    return FBResponseWithError(error);
+  }
+  
   return FBResponseWithOK();
 }
 
