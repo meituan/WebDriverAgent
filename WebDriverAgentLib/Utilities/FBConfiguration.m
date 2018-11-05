@@ -15,6 +15,9 @@
 #import "FBXCodeCompatibility.h"
 #import "XCTestPrivateSymbols.h"
 #import "XCElementSnapshot.h"
+#import "FBMathUtils.h"
+#import "FBMacros.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 static NSUInteger const DefaultStartingPort = 8100;
 static NSUInteger const DefaultMjpegServerPort = 9100;
@@ -26,6 +29,8 @@ static BOOL FBShouldUseCompactResponses = YES;
 static BOOL FBShouldWaitForQuiescence = NO;
 static NSString *FBElementResponseAttributes = @"type,label";
 static NSUInteger FBMaxTypingFrequency = 60;
+
+static CGSize ScreenSize;
 
 @implementation FBConfiguration
 
@@ -135,6 +140,21 @@ static NSUInteger FBMaxTypingFrequency = 60;
 + (void)setShouldWaitForQuiescence:(BOOL)value
 {
   FBShouldWaitForQuiescence = value;
+}
+
++ (void)setScreenSize:(CGSize)screenSize {
+  ScreenSize = screenSize;
+}
+
++ (CGSize)screenSize {
+  if (CGSizeEqualToSize(CGSizeZero, ScreenSize)) {
+    FBApplication *application = FBApplication.fb_activeApplication;
+    CGRect frame = application.wdFrame;
+    ScreenSize = FBAdjustDimensionsForApplication(frame.size, application.interfaceOrientation);
+    return ScreenSize;
+  }
+  return ScreenSize;
+  
 }
 
 #pragma mark Private

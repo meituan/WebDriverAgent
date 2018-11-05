@@ -8,6 +8,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)verboseLoggingEnabled;
 
 + (BOOL)shouldLoadSnapshotWithAttributes;
+
++ (void)setScreenSize:(CGSize)screenSize;
++ (CGSize)screenSize;
 
 @end
 

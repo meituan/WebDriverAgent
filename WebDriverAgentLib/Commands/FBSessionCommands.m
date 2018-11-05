@@ -18,6 +18,9 @@
 #import "XCUIDevice.h"
 #import "XCUIDevice+FBHealthCheck.h"
 #import "XCUIDevice+FBHelpers.h"
+#import "FBMathUtils.h"
+#import "FBMacros.h"
+#import "XCUIElement+FBWebDriverAttributes.h"
 
 @implementation FBSessionCommands
 
@@ -145,6 +148,7 @@
 
 + (id<FBResponsePayload>)handleGetStatus:(FBRouteRequest *)request
 {
+  FBApplication *application = FBApplication.fb_activeApplication;
   // For updatedWDABundleId capability by Appium
   NSString *productBundleIdentifier = @"com.facebook.WebDriverAgentRunner";
   NSString *envproductBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
@@ -160,6 +164,10 @@
   if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
     [buildInfo setObject:upgradeTimestamp forKey:@"upgradedAt"];
   }
+  
+  CGRect frame = application.wdFrame;
+  CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, application.interfaceOrientation);
+  [FBConfiguration setScreenSize:screenSize];
 
   return
   FBResponseWithStatus(
@@ -172,6 +180,10 @@
           @"version" : [[UIDevice currentDevice] systemVersion],
           @"sdkVersion": FBSDKVersion() ?: @"unknown",
         },
+      @"size" : @{
+          @"width": @(screenSize.width),
+          @"height": @(screenSize.height),
+      },
       @"ios" :
         @{
           @"simulatorVersion" : [[UIDevice currentDevice] systemVersion],
