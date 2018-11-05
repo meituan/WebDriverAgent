@@ -83,7 +83,7 @@ const CGFloat FBDragVelocity = 230.f;
     [[FBRoute POST:@"/wda/keys"] respondWithTarget:self action:@selector(handleKeys:)],
     [[FBRoute POST:@"/wda/pickerwheel/:uuid/select"] respondWithTarget:self action:@selector(handleWheelSelect:)],
     [[FBRoute POST:@"/wda/element/:uuid/forceTouch"] respondWithTarget:self action:@selector(handleForceTouch:)],
-    ];
+  ];
 }
 
 
@@ -227,10 +227,10 @@ const CGFloat FBDragVelocity = 230.f;
 
 + (id<FBResponsePayload>)handleTwoFingerTap:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  [element twoFingerTap];
-  return FBResponseWithOK();
+    FBElementCache *elementCache = request.session.elementCache;
+    XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
+    [element twoFingerTap];
+    return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTouchAndHold:(FBRouteRequest *)request
@@ -273,7 +273,7 @@ const CGFloat FBDragVelocity = 230.f;
 {
   FBElementCache *elementCache = request.session.elementCache;
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  
+
   // Using presence of arguments as a way to convey control flow seems like a pretty bad idea but it's
   // what ios-driver did and sadly, we must copy them.
   NSString *const name = request.arguments[@"name"];
@@ -284,7 +284,7 @@ const CGFloat FBDragVelocity = 230.f;
     }
     return [self.class handleScrollElementToVisible:childElement withRequest:request];
   }
-  
+
   NSString *const direction = request.arguments[@"direction"];
   if (direction) {
     NSString *const distanceString = request.arguments[@"distance"] ?: @"1.0";
@@ -300,7 +300,7 @@ const CGFloat FBDragVelocity = 230.f;
     }
     return FBResponseWithOK();
   }
-  
+
   NSString *const predicateString = request.arguments[@"predicateString"];
   if (predicateString) {
     NSPredicate *formattedPredicate = [NSPredicate fb_formatSearchPredicate:[FBPredicate predicateWithFormat:predicateString]];
@@ -310,7 +310,7 @@ const CGFloat FBDragVelocity = 230.f;
     }
     return [self.class handleScrollElementToVisible:childElement withRequest:request];
   }
-  
+
   if (request.arguments[@"toVisible"]) {
     return [self.class handleScrollElementToVisible:element withRequest:request];
   }
@@ -324,11 +324,11 @@ const CGFloat FBDragVelocity = 230.f;
   NSTimeInterval duration = [request.arguments[@"duration"] doubleValue];
   __block NSError * error = NULL;
   __block BOOL didSucceed;
+  /**
+   *  orientation:设置固定的方向，避免loadMore
+   *  velocity:设置固定的拖动屏幕速率，经验所得
+   **/
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
-    /**
-     *  orientation:设置固定的方向，避免loadMore
-     *  velocity:设置固定的拖动屏幕速率，经验所得
-     **/
     [[XCEventGenerator sharedGenerator] pressAtPoint:startPoint forDuration:duration liftAtPoint:endPoint velocity:FBDragVelocity orientation:0 name:@"dragCoordinate" handler:^(XCSynthesizedEventRecord *record, NSError *commandError) {
       if (commandError) {
         [FBLogger logFmt:@"Failed to perform DragCoordinate: %@", commandError];
@@ -364,24 +364,24 @@ const CGFloat FBDragVelocity = 230.f;
 
 + (id<FBResponsePayload>)handleSwipe:(FBRouteRequest *)request
 {
-  FBElementCache *elementCache = request.session.elementCache;
-  XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
-  NSString *const direction = request.arguments[@"direction"];
-  if (!direction) {
-    return FBResponseWithErrorFormat(@"Missing 'direction' parameter");
-  }
-  if ([direction isEqualToString:@"up"]) {
-    [element swipeUp];
-  } else if ([direction isEqualToString:@"down"]) {
-    [element swipeDown];
-  } else if ([direction isEqualToString:@"left"]) {
-    [element swipeLeft];
-  } else if ([direction isEqualToString:@"right"]) {
-    [element swipeRight];
-  } else {
-    return FBResponseWithErrorFormat(@"Unsupported swipe type");
-  }
-  return FBResponseWithOK();
+    FBElementCache *elementCache = request.session.elementCache;
+    XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
+    NSString *const direction = request.arguments[@"direction"];
+    if (!direction) {
+        return FBResponseWithErrorFormat(@"Missing 'direction' parameter");
+    }
+    if ([direction isEqualToString:@"up"]) {
+        [element swipeUp];
+    } else if ([direction isEqualToString:@"down"]) {
+        [element swipeDown];
+    } else if ([direction isEqualToString:@"left"]) {
+        [element swipeLeft];
+    } else if ([direction isEqualToString:@"right"]) {
+        [element swipeRight];
+    } else {
+      return FBResponseWithErrorFormat(@"Unsupported swipe type");
+    }
+    return FBResponseWithOK();
 }
 
 + (id<FBResponsePayload>)handleTap:(FBRouteRequest *)request
@@ -427,9 +427,9 @@ const CGFloat FBDragVelocity = 230.f;
   CGRect frame = request.session.activeApplication.wdFrame;
   CGSize screenSize = FBAdjustDimensionsForApplication(frame.size, request.session.activeApplication.interfaceOrientation);
   return FBResponseWithStatus(FBCommandStatusNoError, @{
-                                                        @"width": @(screenSize.width),
-                                                        @"height": @(screenSize.height),
-                                                        });
+    @"width": @(screenSize.width),
+    @"height": @(screenSize.height),
+  });
 }
 
 + (id<FBResponsePayload>)handleElementScreenshot:(FBRouteRequest *)request
@@ -493,7 +493,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
 /**
  Returns gesture coordinate for the application based on absolute coordinate
- 
+
  @param coordinate absolute screen coordinates
  @param application the instance of current application under test
  @shouldApplyOrientationWorkaround whether to apply orientation workaround. This is to
@@ -510,7 +510,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
   if (shouldApplyOrientationWorkaround) {
     point = FBInvertPointForApplication(coordinate, application.frame.size, application.interfaceOrientation);
   }
-  
+
   /**
    If SDK >= 11, the tap coordinate based on application is not correct when
    the application orientation is landscape and
@@ -538,7 +538,7 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
 
 /**
  Returns gesture coordinate based on the specified element.
- 
+
  @param coordinate absolute coordinates based on the element
  @param element the element in the current application under test
  @return translated gesture coordinates ready to be passed to XCUICoordinate methods
