@@ -326,8 +326,8 @@ const CGFloat FBDragVelocity = 230.f;
   __block BOOL didSucceed;
   [FBRunLoopSpinner spinUntilCompletion:^(void(^completion)(void)){
     /**
-     *  orientation:设置固定方向，避免loadMore
-     *  velocity:设置固定速率，经验所得
+     *  orientation:设置固定的方向，避免loadMore
+     *  velocity:设置固定的拖动屏幕速率，经验所得
      **/
     [[XCEventGenerator sharedGenerator] pressAtPoint:startPoint forDuration:duration liftAtPoint:endPoint velocity:FBDragVelocity orientation:0 name:@"dragCoordinate" handler:^(XCSynthesizedEventRecord *record, NSError *commandError) {
       if (commandError) {
